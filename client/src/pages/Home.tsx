@@ -1,389 +1,278 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 import { 
-  Car, Wrench, ShieldCheck, Clock, MapPin, Phone, 
-  ArrowRight, CheckCircle2, Star, CalendarDays 
+  Wrench, 
+  ShieldCheck, 
+  Clock, 
+  Phone, 
+  MapPin, 
+  ChevronRight, 
+  Star,
+  Zap,
+  CheckCircle2,
+  Calendar
 } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { ServiceCalculator } from "@/components/ServiceCalculator";
-import { ContactForm } from "@/components/ContactForm";
-import { TestimonialCarousel } from "@/components/TestimonialCarousel";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { api } from "@shared/routes";
+import { Service, Testimonial, insertInquirySchema } from "@shared/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-
-// Static placeholders for background/hero images
-const HERO_BG = "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=2832&auto=format&fit=crop"; /* mechanic working on car underbody */
-const ABOUT_IMG = "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=2940&auto=format&fit=crop"; /* clean modern garage interior */
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { apiRequest } from "@/lib/queryClient";
+import logoImg from "@assets/generated_images/modern_automotive_repair_shop_logo.png";
+import garageBg from "@assets/generated_images/ultra-modern_garage_interior_background.png";
 
 export default function Home() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
+  const { toast } = useToast();
+  const { data: services } = useQuery<Service[]>({ queryKey: [api.services.list.path] });
+  const { data: testimonials } = useQuery<Testimonial[]>({ queryKey: [api.testimonials.list.path] });
+
+  const form = useForm({
+    resolver: zodResolver(insertInquirySchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      vehicleDetails: "",
+      serviceType: "",
+      message: ""
+    }
   });
-  
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  const mutation = useMutation({
+    mutationFn: (data: any) => apiRequest("POST", api.contact.submit.path, data),
+    onSuccess: () => {
+      toast({ title: "Success!", description: "We'll get back to you shortly." });
+      form.reset();
+    }
+  });
 
   return (
-    <div className="bg-background min-h-screen text-foreground overflow-x-hidden">
-      <Navbar />
-
-      {/* HERO SECTION */}
-      <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Parallax Background */}
-        <motion.div 
-          style={{ y, opacity }}
-          className="absolute inset-0 z-0"
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background z-10" />
-          <div className="absolute inset-0 bg-black/40 z-10" /> {/* Tint */}
-          {/* Using Unsplash for hero background */}
-          <img 
-            src={HERO_BG} 
-            alt="Garage Workshop" 
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-
-        {/* Hero Content */}
-        <div className="container relative z-20 px-4 md:px-6">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary mb-6 backdrop-blur-sm">
-                <Star className="w-3.5 h-3.5 fill-current" />
-                <span className="text-xs font-bold uppercase tracking-widest">Santa Fe Springs' Top Rated</span>
-              </div>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold uppercase tracking-tighter leading-[0.9] mb-4">
-                Precision <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-600">Auto</span><br/> 
-                <span className="text-white/90">Performance</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Trusted by the community for over 27 years. We combine old-school craftsmanship with modern diagnostics to keep your vehicle running at its peak.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
-            >
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white font-heading text-lg px-8 py-6 rounded-sm uppercase tracking-wider skew-x-[-10deg] shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all"
-                onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <span className="skew-x-[10deg] flex items-center gap-2">Book Appointment <ArrowRight className="w-5 h-5" /></span>
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="bg-white/5 border-white/20 hover:bg-white/10 hover:border-white text-white font-heading text-lg px-8 py-6 rounded-sm uppercase tracking-wider skew-x-[-10deg] backdrop-blur-sm"
-                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <span className="skew-x-[10deg]">Explore Services</span>
-              </Button>
-            </motion.div>
-          </div>
+    <div className="min-h-screen bg-background selection:bg-primary/30">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 glass-panel border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src={logoImg} alt="Los Nietos Logo" className="h-10 w-auto" />
+          <span className="text-xl font-bold tracking-tighter text-glow">LOS NIETOS</span>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20"
-        >
-          <div className="w-[1px] h-16 bg-gradient-to-b from-primary/0 via-primary to-primary/0" />
-        </motion.div>
-      </section>
-
-      {/* STATS STRIP */}
-      <div className="border-y border-white/5 bg-secondary/30 backdrop-blur-md relative z-20">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-10">
-            {[
-              { label: "Years Experience", value: "27+", icon: Clock },
-              { label: "Vehicles Serviced", value: "15k+", icon: Car },
-              { label: "Warranty", value: "2 Yrs", icon: ShieldCheck },
-              { label: "Certified Techs", value: "100%", icon: Wrench },
-            ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center text-center gap-2">
-                <stat.icon className="w-6 h-6 text-primary mb-1" />
-                <span className="text-3xl font-heading font-bold text-white">{stat.value}</span>
-                <span className="text-xs text-muted-foreground uppercase tracking-widest">{stat.label}</span>
-              </div>
-            ))}
-          </div>
+        <div className="hidden md:flex items-center gap-8">
+          {["Services", "About", "Reviews", "Contact"].map((item) => (
+            <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest">
+              {item}
+            </a>
+          ))}
+          <Button variant="default" className="font-bold tracking-widest uppercase">Book Now</Button>
         </div>
-      </div>
+      </nav>
 
-      {/* SERVICES CALCULATOR SECTION */}
-      <section id="services" className="py-24 relative">
-        <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
-            <div className="max-w-xl">
-              <h2 className="text-primary font-bold uppercase tracking-widest mb-2">Our Expertise</h2>
-              <h3 className="text-4xl md:text-5xl font-heading font-bold mb-6">Transparent Pricing.<br/>No Surprises.</h3>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Select the services you need below to get an instant estimate. We believe in complete transparency before we ever touch your vehicle.
-              </p>
-            </div>
-          </div>
-
-          <ServiceCalculator />
-        </div>
-      </section>
-
-      {/* SPECIAL OFFERS */}
-      <section className="py-24 bg-primary/5 border-y border-primary/10">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">Current Specials</h2>
-            <p className="text-muted-foreground">Limited time offers for our valued customers</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-background border border-border p-8 rounded-xl relative overflow-hidden group hover:border-primary/50 transition-all">
-              <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">NEW CUSTOMER</div>
-              <h3 className="text-2xl font-heading font-bold mb-2">Free Diagnostic</h3>
-              <p className="text-muted-foreground mb-6">With any repair service over $150. Get to the root of the problem without the fee.</p>
-              <div className="text-4xl font-heading font-bold text-primary mb-6">$0 <span className="text-sm text-muted-foreground font-normal line-through ml-2">$95</span></div>
-              <Button className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10" variant="outline">Claim Offer</Button>
-            </div>
-
-            <div className="bg-gradient-to-br from-primary to-red-800 p-8 rounded-xl relative overflow-hidden text-white shadow-2xl shadow-primary/20 transform md:-translate-y-4">
-              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-              <h3 className="text-2xl font-heading font-bold mb-2">Oil Change Special</h3>
-              <p className="text-white/80 mb-6">Full synthetic oil change up to 5 quarts + premium filter + 21-point inspection.</p>
-              <div className="text-4xl font-heading font-bold mb-6">$59.99</div>
-              <Button className="w-full bg-white text-primary hover:bg-white/90 font-bold">Claim Offer</Button>
-            </div>
-
-            <div className="bg-background border border-border p-8 rounded-xl relative overflow-hidden group hover:border-primary/50 transition-all">
-              <h3 className="text-2xl font-heading font-bold mb-2">Brake Service</h3>
-              <p className="text-muted-foreground mb-6">$25 off per axle on brake pad and rotor replacement services.</p>
-              <div className="text-4xl font-heading font-bold text-primary mb-6">-$25 <span className="text-sm text-muted-foreground font-normal">/ Axle</span></div>
-              <Button className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10" variant="outline">Claim Offer</Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT / GRID */}
-      <section id="about" className="py-24 relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="relative order-2 lg:order-1">
-              <div className="absolute -inset-4 bg-primary/20 rounded-2xl rotate-3 blur-sm" />
-              <img 
-                src={ABOUT_IMG} 
-                alt="Our Workshop" 
-                className="relative rounded-2xl shadow-2xl grayscale hover:grayscale-0 transition-all duration-500 w-full object-cover aspect-[4/3]"
-              />
-              <div className="absolute -bottom-8 -right-8 bg-secondary p-6 rounded-lg border border-white/10 shadow-xl max-w-[200px] hidden md:block">
-                <p className="font-heading text-4xl font-bold text-primary mb-1">27+</p>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">Years serving Santa Fe Springs</p>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2 space-y-8">
-              <div>
-                <h2 className="text-primary font-bold uppercase tracking-widest mb-2">Why Choose Us</h2>
-                <h3 className="text-4xl md:text-5xl font-heading font-bold mb-6">Modern Tech.<br/>Classic Service.</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  We're not just mechanics; we're automotive enthusiasts who care about your car as much as you do. Our shop is equipped with the latest diagnostic tools to handle everything from classic muscle cars to modern hybrids.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  "ASE Certified Master Technicians",
-                  "2-Year / 24,000 Mile Warranty",
-                  "Digital Inspections sent to your phone",
-                  "Complimentary Shuttle Service",
-                  "Financing Available"
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="font-medium">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Button className="bg-transparent hover:bg-primary/10 text-primary border border-primary/50 font-heading uppercase tracking-wide px-8">
-                Read Our Story
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section id="reviews" className="py-24 bg-secondary/30 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-        <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div>
-              <h2 className="text-primary font-bold uppercase tracking-widest mb-2">Testimonials</h2>
-              <h3 className="text-4xl font-heading font-bold">What Drivers Are Saying</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex text-yellow-500">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
-              </div>
-              <span className="font-bold text-lg">4.9/5</span>
-              <span className="text-muted-foreground text-sm">(500+ Reviews)</span>
-            </div>
-          </div>
-
-          <TestimonialCarousel />
-        </div>
-      </section>
-
-      {/* BOOKING / CONTACT */}
-      <section id="booking" className="py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-primary font-bold uppercase tracking-widest mb-2">Contact Us</h2>
-                <h3 className="text-4xl md:text-5xl font-heading font-bold mb-6">Ready to Schedule?</h3>
-                <p className="text-muted-foreground text-lg">
-                  Fill out the form to request an appointment, or use the online scheduler below. 
-                  We'll confirm your time slot as soon as possible.
-                </p>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="p-6 bg-secondary rounded-lg border border-white/5">
-                  <Phone className="w-6 h-6 text-primary mb-4" />
-                  <h4 className="font-heading font-bold text-lg mb-1">Call Us</h4>
-                  <a href="tel:5551234567" className="text-muted-foreground hover:text-white transition-colors">555-123-4567</a>
-                </div>
-                <div className="p-6 bg-secondary rounded-lg border border-white/5">
-                  <MapPin className="w-6 h-6 text-primary mb-4" />
-                  <h4 className="font-heading font-bold text-lg mb-1">Visit Us</h4>
-                  <p className="text-muted-foreground">123 Auto Row,<br/>Santa Fe Springs, CA</p>
-                </div>
-                <div className="p-6 bg-secondary rounded-lg border border-white/5 sm:col-span-2">
-                  <CalendarDays className="w-6 h-6 text-primary mb-4" />
-                  <h4 className="font-heading font-bold text-lg mb-1">Hours</h4>
-                  <div className="grid grid-cols-2 text-sm text-muted-foreground">
-                    <span>Mon - Fri:</span>
-                    <span className="text-right">7:30 AM - 6:00 PM</span>
-                    <span>Saturday:</span>
-                    <span className="text-right">8:00 AM - 4:00 PM</span>
-                    <span>Sunday:</span>
-                    <span className="text-right">Closed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-secondary p-8 rounded-xl border border-white/10 shadow-2xl">
-              <h3 className="text-2xl font-heading font-bold mb-6">Request Appointment</h3>
-              <ContactForm />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ SECTION */}
-      <section id="faq" className="py-24 bg-background border-t border-white/5">
-        <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-          <h2 className="text-3xl font-heading font-bold text-center mb-12">Frequently Asked Questions</h2>
-          <Accordion type="single" collapsible className="w-full">
-            {[
-              { q: "Do you offer a warranty on repairs?", a: "Yes, we offer a 2-year / 24,000-mile warranty on all parts and labor for qualified repairs." },
-              { q: "Can I drop off my car after hours?", a: "Absolutely. We have a secure key drop box located near the front entrance for early bird or late night drop-offs." },
-              { q: "Do you offer financing?", a: "We partner with several financing providers to offer flexible payment plans for major repairs. Ask our service advisor for details." },
-              { q: "How long does a diagnostic take?", a: "Most diagnostic services are completed within 2-4 hours. We'll provide a detailed report before proceeding with any work." },
-            ].map((item, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-white/10">
-                <AccordionTrigger className="hover:text-primary transition-colors text-left">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-secondary pt-24 pb-12 border-t border-white/10">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-primary rounded-br-lg rounded-tl-lg flex items-center justify-center">
-                  <span className="text-white font-heading font-bold">AP</span>
-                </div>
-                <span className="font-heading font-bold text-xl">AUTOPRO</span>
-              </div>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Premier automotive repair and maintenance in Santa Fe Springs. Trusted, certified, and dedicated to excellence.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-heading font-bold text-lg mb-6 text-white">Services</h4>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Brake Repair</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Engine Diagnostics</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Oil Changes</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Transmission</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">AC Service</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-heading font-bold text-lg mb-6 text-white">Company</h4>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#about" className="hover:text-primary transition-colors">About Us</a></li>
-                <li><a href="#reviews" className="hover:text-primary transition-colors">Reviews</a></li>
-                <li><a href="#faq" className="hover:text-primary transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Privacy Policy</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-heading font-bold text-lg mb-6 text-white">Location</h4>
-              <div className="rounded-lg overflow-hidden h-32 w-full bg-muted relative">
-                 {/* Google Maps Embed Placeholder - would be an iframe in prod */}
-                 <img 
-                  src="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?q=80&w=2831&auto=format&fit=crop" 
-                  className="w-full h-full object-cover opacity-50"
-                  alt="Map Location"
-                 />
-                 <div className="absolute inset-0 flex items-center justify-center">
-                   <Button size="sm" variant="secondary" className="text-xs">Get Directions</Button>
-                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} AutoPro Automotive. All rights reserved.
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105"
+          style={{ backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url(${garageBg})` }}
+        />
+        <div className="container relative z-10 px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block text-glow">Precision Automotive Engineering</span>
+            <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight">
+              Honest Repairs.<br/><span className="text-primary text-glow">Expert Service.</span>
+            </h1>
+            <p className="max-w-2xl mx-auto text-muted-foreground text-lg mb-10">
+              Family-owned for 27+ years. Los Nietos Rd's most trusted father-son team specialized in full vehicle restoration and maintenance.
             </p>
-            <div className="flex gap-4">
-              {/* Social Icons Placeholder */}
-              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                <span className="font-bold text-xs">FB</span>
+            <div className="flex flex-col md:flex-row gap-4 justify-center">
+              <Button size="lg" className="h-14 px-10 text-lg font-bold">GET A FREE QUOTE</Button>
+              <Button size="lg" variant="outline" className="h-14 px-10 text-lg font-bold glass-panel">OUR SERVICES</Button>
+            </div>
+          </motion.div>
+        </div>
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center p-1">
+            <div className="w-1 h-2 bg-primary rounded-full" />
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20 border-y border-white/5 bg-secondary/30">
+        <div className="container px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { label: "Years Experience", val: "27+" },
+              { label: "Vehicles Repaired", val: "15k+" },
+              { label: "Satisfaction Rate", val: "100%" },
+              { label: "Expert Techs", val: "2" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <div className="text-4xl font-black text-primary mb-2">{stat.val}</div>
+                <div className="text-xs text-muted-foreground uppercase tracking-widest">{stat.label}</div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                <span className="font-bold text-xs">IG</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="py-32 container px-6">
+        <div className="mb-20 text-center">
+          <h2 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tighter">World-Class Services</h2>
+          <div className="w-20 h-1 bg-primary mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {services?.map((service) => (
+            <Card key={service.id} className="glass-panel hover-elevate group transition-all duration-500">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+                  <Zap className="w-6 h-6 text-primary group-hover:text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3 uppercase tracking-tight">{service.name}</h3>
+                <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+                  {service.description || "Expert maintenance and repair service tailored to your vehicle's specific needs."}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-primary tracking-widest uppercase">Starts at ${service.priceMin}</span>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="about" className="py-32 container px-6 bg-secondary/10 overflow-hidden relative">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="text-primary font-bold tracking-widest uppercase mb-4 block">Our Legacy</span>
+            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight uppercase tracking-tighter">A Father-Son<br/>Tradition</h2>
+            <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
+              For over 27 years, Los Nietos Auto Repair has been a cornerstone of the Santa Fe Springs community. Founded on the principles of honesty and technical excellence, our father-son team brings a personal touch to every repair.
+            </p>
+            <ul className="space-y-4 mb-10">
+              {[
+                "Certified Master Technicians",
+                "Advanced Diagnostic Equipment",
+                "Transparent Pricing Policy",
+                "Genuine OEM Parts Guarantee"
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm font-medium uppercase tracking-wider">
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="relative">
+             <div className="aspect-square glass-panel rounded-2xl overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700">
+                <img src={garageBg} alt="Garage" className="w-full h-full object-cover scale-110" />
+             </div>
+             <div className="absolute -bottom-10 -left-10 glass-panel p-8 rounded-2xl hidden md:block">
+                <div className="text-5xl font-black text-primary mb-1">27+</div>
+                <div className="text-xs uppercase tracking-widest font-bold">Years of Trust</div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="reviews" className="py-32 container px-6">
+        <div className="mb-20 text-center">
+          <h2 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tighter">Client Reviews</h2>
+          <div className="w-20 h-1 bg-primary mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials?.map((t) => (
+            <Card key={t.id} className="glass-panel p-8 hover-elevate transition-all duration-500">
+              <div className="flex gap-1 mb-4">
+                {[...Array(t.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
               </div>
-              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                <span className="font-bold text-xs">YT</span>
+              <p className="italic text-muted-foreground mb-6">"{t.text}"</p>
+              <div className="font-black uppercase tracking-widest text-sm">— {t.name}</div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-32 bg-secondary/20 relative">
+        <div className="container px-6 grid md:grid-cols-2 gap-20">
+          <div>
+            <h2 className="text-4xl md:text-6xl font-black mb-12 uppercase tracking-tighter">Ready to<br/>Roll?</h2>
+            <div className="space-y-10">
+              <div className="flex gap-6">
+                <div className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center shrink-0 border-primary/20">
+                  <MapPin className="text-primary w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold uppercase tracking-[0.2em] text-xs mb-2 text-primary">Location</h4>
+                  <p className="text-lg font-medium">11731 Los Nietos Rd, Santa Fe Springs, CA 90670</p>
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <div className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center shrink-0 border-primary/20">
+                  <Phone className="text-primary w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold uppercase tracking-[0.2em] text-xs mb-2 text-primary">Phone</h4>
+                  <p className="text-lg font-medium">(562) 692-4245</p>
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <div className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center shrink-0 border-primary/20">
+                  <Clock className="text-primary w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold uppercase tracking-[0.2em] text-xs mb-2 text-primary">Business Hours</h4>
+                  <p className="text-sm font-medium uppercase tracking-widest">Mon-Fri 8AM-6PM<br/>Sat 8AM-3PM<br/><span className="text-primary">Sun Closed</span></p>
+                </div>
               </div>
             </div>
           </div>
+
+          <Card className="glass-panel p-10 border-primary/10">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem><FormLabel className="uppercase tracking-[0.2em] text-[10px] font-black text-primary">Full Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} className="h-12 bg-white/5 border-white/10 rounded-none focus:border-primary transition-all" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem><FormLabel className="uppercase tracking-[0.2em] text-[10px] font-black text-primary">Email Address</FormLabel><FormControl><Input placeholder="john@example.com" {...field} className="h-12 bg-white/5 border-white/10 rounded-none focus:border-primary transition-all" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="message" render={({ field }) => (
+                  <FormItem><FormLabel className="uppercase tracking-[0.2em] text-[10px] font-black text-primary">Service Request</FormLabel><FormControl><Textarea rows={4} placeholder="Tell us about your vehicle issues..." {...field} className="bg-white/5 border-white/10 rounded-none focus:border-primary transition-all" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <Button type="submit" className="w-full h-14 font-black tracking-[0.2em] uppercase text-lg" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Transmitting..." : "Send Request"}
+                </Button>
+              </form>
+            </Form>
+          </Card>
+        </div>
+      </section>
+
+      <footer className="py-20 border-t border-white/5 text-center bg-secondary/40">
+        <div className="mb-8 flex justify-center items-center gap-4">
+           <img src={logoImg} alt="Logo" className="h-8 w-auto grayscale opacity-50" />
+           <div className="w-px h-6 bg-white/10" />
+           <span className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Est. 1998</span>
+        </div>
+        <div className="text-muted-foreground text-[10px] uppercase tracking-[0.4em] mb-4">
+          © 2025 Los Nietos Auto Repair. Engineered for performance & safety.
+        </div>
+        <div className="flex justify-center gap-8 text-[10px] font-bold uppercase tracking-widest">
+           <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+           <a href="#" className="hover:text-primary transition-colors">Terms</a>
+           <a href="#" className="hover:text-primary transition-colors">Sitemap</a>
         </div>
       </footer>
     </div>
