@@ -367,21 +367,92 @@ export default function Home() {
           <h2 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-tighter">Book Your<br/>Appointment</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full mb-8" />
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Schedule your service online 24/7. Choose your preferred date and time, and we'll confirm your appointment.
+            Schedule your service online 24/7. Fill out the form below and we'll contact you to confirm your appointment.
           </p>
         </div>
-        <Card className="glass-panel border-white/5 p-8 rounded-2xl">
-          <div className="bg-secondary/50 rounded-xl p-8 min-h-[600px] flex items-center justify-center border border-white/5">
-            <div className="text-center">
-              <Calendar className="w-16 h-16 text-primary mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-black uppercase tracking-widest mb-2">Booking System</h3>
-              <p className="text-muted-foreground mb-6">Online booking will be available soon</p>
-              <p className="text-sm text-muted-foreground mb-4">For now, please call us at <a href="tel:5626924245" className="text-primary hover:underline font-bold">(562) 692-4245</a></p>
-              <Button className="mt-4" variant="outline">View Available Times</Button>
-            </div>
-            {/* Placeholder for Setmore iframe - uncomment and add your Setmore URL when ready */}
-            {/* <iframe src="https://example.setmore.com" width="100%" height="800px" className="border-0 rounded-lg" /> */}
-          </div>
+        <Card className="glass-panel border-white/5 p-12 rounded-2xl max-w-4xl mx-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((data) => {
+              // Add booking flag to the data
+              const bookingData = { ...data, message: `[BOOKING REQUEST]\n\n${data.message || 'Appointment request'}` };
+              mutation.mutate(bookingData);
+            })} className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Full Name *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} className="h-12 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" required />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="phone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Phone Number *</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="(562) 692-4245" {...field} className="h-12 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" required />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Email Address *</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="john@example.com" {...field} className="h-12 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" required />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <div className="grid md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="vehicleDetails" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Vehicle (Year/Make/Model) *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="2018 Toyota Camry" {...field} className="h-12 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" required />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="serviceType" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Service Needed *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Oil Change, Brake Service, etc." {...field} className="h-12 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" required />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <FormField control={form.control} name="message" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Preferred Date/Time & Additional Notes</FormLabel>
+                  <FormControl>
+                    <Textarea rows={4} placeholder="Please specify your preferred date and time, or any special requirements..." {...field} className="bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <Button type="submit" className="w-full h-14 font-black tracking-[0.3em] uppercase text-lg hover-elevate shadow-2xl shadow-primary/20" disabled={mutation.isPending}>
+                {mutation.isPending ? (
+                  <span className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 animate-pulse" />
+                    Submitting Request...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Request Appointment
+                  </span>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                We'll contact you within 24 hours to confirm your appointment. For immediate assistance, call us at <a href="tel:5626924245" className="text-primary hover:underline font-bold">(562) 692-4245</a>
+              </p>
+            </form>
+          </Form>
         </Card>
       </section>
 
