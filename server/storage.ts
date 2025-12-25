@@ -1,38 +1,65 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  inquiries,
+  services,
+  testimonials,
+  type InsertInquiry,
+  type InsertService,
+  type InsertTestimonial,
+  type Inquiry,
+  type Service,
+  type Testimonial,
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Inquiries
+  createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
+
+  // Services
+  getServices(): Promise<Service[]>;
+  createService(service: InsertService): Promise<Service>;
+
+  // Testimonials
+  getTestimonials(): Promise<Testimonial[]>;
+  createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  // Inquiries
+  async createInquiry(insertInquiry: InsertInquiry): Promise<Inquiry> {
+    const [inquiry] = await db
+      .insert(inquiries)
+      .values(insertInquiry)
+      .returning();
+    return inquiry;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  // Services
+  async getServices(): Promise<Service[]> {
+    return await db.select().from(services);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createService(insertService: InsertService): Promise<Service> {
+    const [service] = await db
+      .insert(services)
+      .values(insertService)
+      .returning();
+    return service;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  // Testimonials
+  async getTestimonials(): Promise<Testimonial[]> {
+    return await db.select().from(testimonials);
+  }
+
+  async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const [testimonial] = await db
+      .insert(testimonials)
+      .values(insertTestimonial)
+      .returning();
+    return testimonial;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
