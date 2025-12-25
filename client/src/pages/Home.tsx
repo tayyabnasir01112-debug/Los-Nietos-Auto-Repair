@@ -174,9 +174,9 @@ export default function Home() {
                 className="h-16 px-6 md:px-12 text-lg font-black tracking-widest uppercase glass-panel hover:bg-white/5 transition-colors min-w-0 whitespace-nowrap"
                 onClick={(e) => {
                   e.preventDefault();
-                  const gallerySection = document.querySelector('[class*="Gallery"]');
+                  const gallerySection = document.getElementById('gallery');
                   if (gallerySection) {
-                    (gallerySection as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }
                 }}
               >

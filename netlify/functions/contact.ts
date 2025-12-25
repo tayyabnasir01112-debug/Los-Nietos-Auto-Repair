@@ -63,16 +63,61 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    // Seed data if needed (run once)
-    await seedDataIfNeeded();
-
     const body = JSON.parse(event.body || "{}");
-    const input = insertInquirySchema.parse(body);
     
-    await storage.createInquiry(input);
+    // Validate input
+    let input;
+    try {
+      input = insertInquirySchema.parse(body);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            message: validationError.errors[0].message,
+            field: validationError.errors[0].path.join("."),
+          }),
+        };
+      }
+      throw validationError;
+    }
+    
+    // Try to save to database
+    try {
+      // Seed data if needed (run once) - but don't block on errors
+      try {
+        await seedDataIfNeeded();
+      } catch (seedError) {
+        console.warn("Warning: Could not seed data:", seedError);
+        // Continue anyway
+      }
+      
+      await storage.createInquiry(input);
+      console.log("New inquiry received and saved:", input);
+    } catch (dbError: any) {
+      // Log the detailed error for debugging
+      console.error("Database error:", dbError);
+      console.error("Error message:", dbError?.message);
+      console.error("Error stack:", dbError?.stack);
+      console.log("New inquiry received (not saved to DB):", input);
+      
+      // Check if it's a connection error
+      if (dbError?.message?.includes("connect") || dbError?.message?.includes("ECONNREFUSED") || dbError?.code === "ENOTFOUND") {
+        return {
+          statusCode: 503,
+          headers,
+          body: JSON.stringify({ 
+            message: "Database connection unavailable. Please try again later or call us at (562) 692-4245.",
+          }),
+        };
+      }
+      
+      // For other DB errors, still return 500 but with better message
+      throw dbError;
+    }
     
     // In a real app with email integration, we would send the email here.
-    console.log("New inquiry received:", input);
 
     return {
       statusCode: 200,
@@ -80,6 +125,9 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify({ message: "Inquiry received successfully" }),
     };
   } catch (err) {
+    console.error("Error processing inquiry:", err);
+    
+    // Handle Zod validation errors (shouldn't reach here if validation worked above, but just in case)
     if (err instanceof z.ZodError) {
       return {
         statusCode: 400,
@@ -91,11 +139,16 @@ export const handler: Handler = async (event, context) => {
       };
     }
     
-    console.error("Error processing inquiry:", err);
+    // Generic error response
+    const errorMessage = err instanceof Error ? err.message : "Internal server error";
+    console.error("Full error details:", err);
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ message: "Internal server error" }),
+      body: JSON.stringify({ 
+        message: errorMessage || "Internal server error. Please try again or call us at (562) 692-4245.",
+      }),
     };
   }
 };
