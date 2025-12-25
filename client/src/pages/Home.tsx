@@ -77,7 +77,13 @@ export default function Home() {
     <div className="min-h-screen bg-background selection:bg-primary/30">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 glass-panel border-b border-white/5 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3 group cursor-pointer">
+        <div 
+          className="flex items-center gap-3 group cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-hover:bg-primary/40 transition-all" />
             <img src={logoImg} alt="Los Nietos Logo" className="h-10 w-auto relative z-10 filter brightness-110 contrast-125 group-hover:scale-105 transition-transform" />
@@ -142,7 +148,13 @@ export default function Home() {
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary">Precision Automotive Engineering</span>
             </div>
-            <h1 className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] uppercase tracking-tighter">
+            <h1 
+              className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] uppercase tracking-tighter cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
               Honest Repairs.<br/>
               <span className="relative inline-block">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-red-500 to-primary text-glow animate-gradient-x">Expert Service.</span>
@@ -151,10 +163,10 @@ export default function Home() {
             <p className="max-w-2xl mx-auto text-muted-foreground text-xl mb-12 leading-relaxed">
               Family-owned for <span className="text-white font-bold">27+ years</span>. Santa Fe Springs' most trusted father-son team specialized in high-performance restoration and maintenance.
             </p>
-            <div className="flex flex-col md:flex-row gap-6 justify-center">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4 md:px-0">
               <Button 
                 size="lg" 
-                className="h-16 px-6 md:px-12 text-lg font-black tracking-widest uppercase hover-elevate shadow-xl shadow-primary/25 group min-w-0 whitespace-nowrap"
+                className="h-14 md:h-16 px-6 md:px-12 text-base md:text-lg font-black tracking-widest uppercase hover-elevate shadow-xl shadow-primary/25 group min-w-0 whitespace-nowrap"
                 onClick={(e) => {
                   e.preventDefault();
                   const servicesSection = document.getElementById('services');
@@ -165,13 +177,13 @@ export default function Home() {
               >
                 <span className="flex items-center justify-center gap-2">
                   GET A FREE QUOTE
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform shrink-0" />
                 </span>
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="h-16 px-6 md:px-12 text-lg font-black tracking-widest uppercase glass-panel hover:bg-white/5 transition-colors min-w-0 whitespace-nowrap"
+                className="h-14 md:h-16 px-6 md:px-12 text-base md:text-lg font-black tracking-widest uppercase glass-panel hover:bg-white/5 transition-colors min-w-0 whitespace-nowrap"
                 onClick={(e) => {
                   e.preventDefault();
                   const gallerySection = document.getElementById('gallery');
@@ -192,18 +204,18 @@ export default function Home() {
       </section>
 
       {/* Stats Strip */}
-      <div className="relative z-20 -mt-10 mb-20">
-        <div className="container px-6">
-          <div className="glass-panel py-12 px-8 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5 border-primary/10">
+      <div className="relative z-20 -mt-10 md:-mt-10 mb-12 md:mb-20">
+        <div className="container px-4 md:px-6">
+          <div className="glass-panel py-8 md:py-12 px-4 md:px-8 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 divide-x divide-white/5 border-primary/10">
             {[
               { label: "Years Experience", val: "27+" },
               { label: "Vehicles Repaired", val: "15k+" },
               { label: "Satisfaction Rate", val: "100%" },
               { label: "Certified Techs", val: "2" },
             ].map((stat, i) => (
-              <div key={i} className="text-center px-4 first:divide-none">
-                <div className="text-5xl font-black text-primary mb-2 tracking-tighter text-glow">{stat.val}</div>
-                <div className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">{stat.label}</div>
+              <div key={i} className={`text-center px-2 md:px-4 ${i === 0 ? 'first:divide-none' : ''} ${i % 2 === 1 ? 'md:border-l md:border-white/5' : ''}`}>
+                <div className="text-3xl md:text-5xl font-black text-primary mb-1 md:mb-2 tracking-tighter text-glow">{stat.val}</div>
+                <div className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -238,7 +250,7 @@ export default function Home() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+      <section className="py-16 md:py-32 container px-4 md:px-6 bg-secondary/5 border-y border-white/5">
         <div className="mb-20 text-center">
           <h2 className="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">World-Class Solutions</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
@@ -305,7 +317,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+      <section id="gallery" className="py-16 md:py-32 container px-4 md:px-6 bg-secondary/5 border-y border-white/5">
         <div className="mb-16 text-center">
           <div className="inline-flex items-center gap-3 mb-6">
             <Camera className="w-8 h-8 text-primary" />
@@ -345,7 +357,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section id="reviews" className="py-40 container px-6">
+      <section id="reviews" className="py-20 md:py-40 container px-4 md:px-6">
         <div className="mb-24 text-center">
           <h2 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-tighter">The Word<br/>On The Street</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
@@ -374,7 +386,7 @@ export default function Home() {
       </section>
 
       {/* Special Offers */}
-      <section className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+      <section className="py-16 md:py-32 container px-4 md:px-6 bg-secondary/5 border-y border-white/5">
         <div className="mb-16 text-center">
           <h2 className="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Special Offers</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
@@ -403,7 +415,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-40 container px-6">
+      <section id="faq" className="py-20 md:py-40 container px-4 md:px-6">
         <div className="mb-16 text-center">
           <div className="inline-flex items-center gap-3 mb-6">
             <HelpCircle className="w-8 h-8 text-primary" />
@@ -436,7 +448,7 @@ export default function Home() {
       </section>
 
       {/* Online Booking Section */}
-      <section id="booking" className="py-32 container px-6 bg-secondary/10 border-y border-white/5">
+      <section id="booking" className="py-16 md:py-32 container px-4 md:px-6 bg-secondary/10 border-y border-white/5">
         <div className="mb-16 text-center">
           <h2 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-tighter">Book Your<br/>Appointment</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full mb-8" />
@@ -535,8 +547,8 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-40 bg-secondary/30 relative border-t border-white/5">
-        <div className="container px-6 grid lg:grid-cols-2 gap-32">
+      <section id="contact" className="py-20 md:py-40 bg-secondary/30 relative border-t border-white/5">
+        <div className="container px-4 md:px-6 grid lg:grid-cols-2 gap-12 md:gap-32">
           <div>
             <h2 className="text-6xl md:text-8xl font-black mb-16 uppercase tracking-tighter leading-none">Ready to<br/><span className="text-primary text-glow">Ignite?</span></h2>
             <div className="space-y-12">
@@ -615,7 +627,7 @@ export default function Home() {
       </section>
 
       {/* Map Section */}
-      <section className="py-20 container px-6 border-b border-white/5">
+      <section className="py-12 md:py-20 container px-4 md:px-6 border-b border-white/5">
         <div className="mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tighter">Find Us</h2>
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
