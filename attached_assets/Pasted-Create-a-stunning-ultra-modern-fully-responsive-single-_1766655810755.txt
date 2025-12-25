@@ -1,0 +1,29 @@
+Create a stunning, ultra-modern, fully responsive single-page website for Los Nietos Auto Repair in Santa Fe Springs, CA – make it look like a premium 2025 agency design to blow away the owner.
+
+Business details:
+- Name: Los Nietos Auto Repair
+- Address: 11731 Los Nietos Rd, Santa Fe Springs, CA 90670
+- Phone: (562) 692-4245
+- Hours: Mon-Fri 8AM-6PM, Sat 8AM-3PM, Sun Closed
+- Services: Brakes, oil changes, diagnostics, tune-ups, transmissions, AC, tires, full repairs
+- About: Family-owned, 27+ years, honest & affordable, father-son team
+
+Design: Dark blue/gray theme with red accents. Use Google Fonts (Inter + Oswald). Full-screen parallax hero with Unsplash garage background or subtle video loop placeholder. Sticky nav, smooth scrolling, fade-in animations via AOS CDN.
+
+Advanced features:
+- Hero: Big tagline "Trusted Auto Repair in Santa Fe Springs – 27+ Years of Excellence", CTAs for Book Now (scroll to booking) and Call.
+- Interactive service calculator: JS form where user selects services (dropdowns/checkboxes) and gets instant estimated quote range.
+- Gallery: Bootstrap carousel + lightbox for shop/repair photos (Unsplash placeholders).
+- Testimonials: Swiper.js slider with 5-star reviews.
+- Special offers: Animated cards (e.g., "Free Diagnostic").
+- Online Booking: Dedicated section with responsive iframe embed of a free booking tool (use placeholder code for Setmore: <iframe src="https://example.setmore.com" width="100%" height="800px"></iframe> – note: owner can replace with real Setmore free account).
+- FAQ: Accordion with animations.
+- Contact/Quote form: Advanced form (name, email, phone, vehicle make/model/year, service needed, message) that submits to Netlify serverless function for real email sending.
+- Footer: Hours, map embed, social placeholders, dark mode toggle (JS).
+
+Backend (Netlify Functions – free tier compatible):
+- Create netlify/functions/send-email.js: Node.js function using Resend (fetch to https://api.resend.com/emails with API key from env var RESEND_API_KEY). On form submit, POST to /.netlify/functions/send-email, send email to owner with form details + auto-reply to customer. Include success/error messages.
+
+Tech stack: HTML/CSS/JS + Bootstrap 5 CDN + Font Awesome + AOS animations + Swiper.js for sliders + Lightbox2. High-quality Unsplash images. Full SEO meta tags, fast-loading.
+
+Include netlify.toml for functions directory. Generate all files/folders: index.html, style.css, script.js, netlify/functions/send-email.js. This will be jaw-dropping and show real functionality!
