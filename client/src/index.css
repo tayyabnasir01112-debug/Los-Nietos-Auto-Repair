@@ -171,3 +171,28 @@ html {
   }
 }
 
+/* Mobile button fixes for Safari on iPhone */
+@supports (-webkit-touch-callout: none) {
+  button {
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    min-width: 44px; /* Minimum touch target size */
+    min-height: 44px;
+  }
+  
+  /* Ensure buttons don't overflow on mobile */
+  .whitespace-nowrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Fix button text wrapping issues */
+  button span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+

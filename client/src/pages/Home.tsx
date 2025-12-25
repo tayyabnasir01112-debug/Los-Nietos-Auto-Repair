@@ -12,7 +12,7 @@ import {
   Calendar,
   ArrowRight
 } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { api } from "@shared/routes";
 import { Service, Testimonial, insertInquirySchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,14 +27,16 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { apiRequest } from "@/lib/queryClient";
 import { ServiceCalculator } from "@/components/ServiceCalculator";
+import { useServices } from "@/hooks/use-services";
+import { useTestimonials } from "@/hooks/use-testimonials";
 import logoImg from "@assets/generated_images/modern_automotive_repair_shop_logo.png";
 import garageBg from "@assets/generated_images/ultra-modern_garage_interior_background.png";
 import { Gift, HelpCircle, Camera } from "lucide-react";
 
 export default function Home() {
   const { toast } = useToast();
-  const { data: services } = useQuery<Service[]>({ queryKey: [api.services.list.path] });
-  const { data: testimonials } = useQuery<Testimonial[]>({ queryKey: [api.testimonials.list.path] });
+  const { data: services } = useServices();
+  const { data: testimonials } = useTestimonials();
 
   const form = useForm({
     resolver: zodResolver(insertInquirySchema),
@@ -49,10 +51,25 @@ export default function Home() {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", api.contact.submit.path, data),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", api.contact.submit.path, data);
+      return response.json();
+    },
     onSuccess: () => {
-      toast({ title: "Success!", description: "We'll get back to you shortly." });
+      toast({ 
+        title: "Request Submitted!", 
+        description: "We'll get back to you shortly to confirm your appointment.",
+        variant: "default"
+      });
       form.reset();
+    },
+    onError: (error: any) => {
+      console.error("Form submission error:", error);
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to submit request. Please try again or call us at (562) 692-4245",
+        variant: "destructive"
+      });
     }
   });
 
@@ -68,13 +85,41 @@ export default function Home() {
           <span className="text-xl font-black tracking-tighter text-glow bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-primary">LOS NIETOS</span>
         </div>
         <div className="hidden md:flex items-center gap-8">
-          {["Services", "About", "Reviews", "Contact"].map((item) => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-bold hover:text-primary transition-colors uppercase tracking-widest relative group">
-              {item}
+          {[
+            { name: "Services", id: "services" },
+            { name: "About", id: "about" },
+            { name: "Reviews", id: "reviews" },
+            { name: "Contact", id: "contact" }
+          ].map((item) => (
+            <a 
+              key={item.name} 
+              href={`#${item.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                const element = document.getElementById(item.id);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
+              className="text-sm font-bold hover:text-primary transition-colors uppercase tracking-widest relative group"
+            >
+              {item.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
             </a>
           ))}
-          <Button variant="default" className="font-bold tracking-widest uppercase hover-elevate shadow-lg shadow-primary/20">Book Appointment</Button>
+          <Button 
+            variant="default" 
+            className="font-bold tracking-widest uppercase hover-elevate shadow-lg shadow-primary/20 whitespace-nowrap min-w-0 px-4 text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const bookingSection = document.getElementById('booking');
+              if (bookingSection) {
+                bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          >
+            Book Appointment
+          </Button>
         </div>
       </nav>
 
@@ -283,19 +328,25 @@ export default function Home() {
           <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
         </div>
         <div className="grid md:grid-cols-3 gap-10">
-          {testimonials?.map((t) => (
-            <Card key={t.id} className="glass-panel p-10 hover-elevate transition-all duration-500 border-white/5 relative group">
-              <div className="absolute top-0 left-0 w-1 h-0 bg-primary group-hover:h-full transition-all duration-700" />
-              <div className="flex gap-1.5 mb-8">
-                {[...Array(t.rating)].map((_, i) => <Star key={i} className="w-5 h-5 fill-primary text-primary drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]" />)}
-              </div>
-              <p className="italic text-muted-foreground text-lg mb-10 leading-relaxed group-hover:text-white transition-colors">"{t.text}"</p>
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-black text-primary text-xs uppercase">{t.name.charAt(0)}</div>
-                 <div className="font-black uppercase tracking-[0.2em] text-sm text-white">{t.name}</div>
-              </div>
-            </Card>
-          ))}
+          {testimonials && testimonials.length > 0 ? (
+            testimonials.map((t) => (
+              <Card key={t.id} className="glass-panel p-10 hover-elevate transition-all duration-500 border-white/5 relative group">
+                <div className="absolute top-0 left-0 w-1 h-0 bg-primary group-hover:h-full transition-all duration-700" />
+                <div className="flex gap-1.5 mb-8">
+                  {[...Array(t.rating || 5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-primary text-primary drop-shadow-[0_0_8px_rgba(255,0,0,0.5)]" />)}
+                </div>
+                <p className="italic text-muted-foreground text-lg mb-10 leading-relaxed group-hover:text-white transition-colors">"{t.text}"</p>
+                <div className="flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-black text-primary text-xs uppercase">{t.name.charAt(0)}</div>
+                   <div className="font-black uppercase tracking-[0.2em] text-sm text-white">{t.name}</div>
+                </div>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-20">
+              <p className="text-muted-foreground text-lg">Loading testimonials...</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -435,16 +486,20 @@ export default function Home() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <Button type="submit" className="w-full h-14 font-black tracking-[0.3em] uppercase text-lg hover-elevate shadow-2xl shadow-primary/20" disabled={mutation.isPending}>
+              <Button 
+                type="submit" 
+                className="w-full h-14 font-black tracking-[0.3em] uppercase text-lg hover-elevate shadow-2xl shadow-primary/20 min-w-0 whitespace-nowrap px-4" 
+                disabled={mutation.isPending}
+              >
                 {mutation.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 animate-pulse" />
-                    Submitting Request...
+                  <span className="flex items-center justify-center gap-2 overflow-hidden">
+                    <Calendar className="w-5 h-5 animate-pulse shrink-0" />
+                    <span className="truncate">Submitting Request...</span>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Request Appointment
+                  <span className="flex items-center justify-center gap-2 overflow-hidden">
+                    <Calendar className="w-5 h-5 shrink-0" />
+                    <span className="truncate">Request Appointment</span>
                   </span>
                 )}
               </Button>
