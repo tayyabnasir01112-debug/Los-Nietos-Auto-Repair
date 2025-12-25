@@ -23,10 +23,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { apiRequest } from "@/lib/queryClient";
 import { ServiceCalculator } from "@/components/ServiceCalculator";
 import logoImg from "@assets/generated_images/modern_automotive_repair_shop_logo.png";
 import garageBg from "@assets/generated_images/ultra-modern_garage_interior_background.png";
+import { Gift, HelpCircle, Camera } from "lucide-react";
 
 export default function Home() {
   const { toast } = useToast();
@@ -233,6 +236,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Gallery Section */}
+      <section className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+        <div className="mb-16 text-center">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <Camera className="w-8 h-8 text-primary" />
+            <span className="text-primary font-black tracking-[0.4em] uppercase text-xs">Our Facility</span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Shop Gallery</h2>
+          <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
+          <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto">
+            Take a virtual tour of our state-of-the-art facility and see where the magic happens
+          </p>
+        </div>
+        <Carousel className="w-full max-w-6xl mx-auto">
+          <CarouselContent>
+            {[
+              { src: garageBg, alt: "Modern garage interior with professional equipment" },
+              { src: garageBg, alt: "Automotive repair bay with specialized tools" },
+              { src: garageBg, alt: "Vehicle service area showing our workspace" },
+              { src: garageBg, alt: "Customer waiting area and reception" },
+            ].map((img, index) => (
+              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                <Card className="glass-panel border-white/5 overflow-hidden group hover-elevate transition-all">
+                  <div className="aspect-video relative overflow-hidden">
+                    <img 
+                      src={img.src} 
+                      alt={img.alt}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-4 border-white/10 bg-secondary/80 hover:bg-secondary hover:border-primary" />
+          <CarouselNext className="right-4 border-white/10 bg-secondary/80 hover:bg-secondary hover:border-primary" />
+        </Carousel>
+      </section>
+
       {/* Testimonials */}
       <section id="reviews" className="py-40 container px-6">
         <div className="mb-24 text-center">
@@ -254,6 +297,92 @@ export default function Home() {
             </Card>
           ))}
         </div>
+      </section>
+
+      {/* Special Offers */}
+      <section className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+        <div className="mb-16 text-center">
+          <h2 className="text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Special Offers</h2>
+          <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            { title: "Free Diagnostic", desc: "Complimentary check engine light scan with any service", icon: Gift, color: "from-primary to-red-600" },
+            { title: "Senior Discount", desc: "10% off all services for customers 65+", icon: Gift, color: "from-red-600 to-primary" },
+            { title: "Referral Bonus", desc: "Get $50 credit when you refer a friend", icon: Gift, color: "from-primary to-red-600" },
+          ].map((offer, i) => (
+            <Card key={i} className="glass-panel p-8 hover-elevate group border-white/5 relative overflow-hidden">
+              <div className={`absolute inset-0 bg-gradient-to-br ${offer.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-all">
+                  <offer.icon className="w-8 h-8 text-primary group-hover:text-white" />
+                </div>
+                <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">{offer.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{offer.desc}</p>
+                <Button className="mt-6 w-full font-bold tracking-widest uppercase" variant="outline">
+                  Claim Offer
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-40 container px-6">
+        <div className="mb-16 text-center">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <HelpCircle className="w-8 h-8 text-primary" />
+            <span className="text-primary font-black tracking-[0.4em] uppercase text-xs">Frequently Asked</span>
+          </div>
+          <h2 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-tighter">Questions?</h2>
+          <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
+        </div>
+        <div className="max-w-3xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-4">
+            {[
+              { q: "What types of vehicles do you service?", a: "We service all makes and models, from domestic to import vehicles, including luxury and performance vehicles. Our team has experience with everything from routine maintenance to complex engine repairs." },
+              { q: "Do you offer warranties on your work?", a: "Yes! All our work comes with a 12-month warranty on parts and labor. We use OEM-quality parts and stand behind every repair we make." },
+              { q: "How long do most repairs take?", a: "Simple services like oil changes take about 30 minutes. Most repairs are completed within 1-2 business days. We'll provide you with an accurate timeline when we diagnose your vehicle." },
+              { q: "Do you offer loaner vehicles?", a: "While we don't have a formal loaner program, we can help arrange transportation for longer repairs. We also offer shuttle service within a 5-mile radius of our shop." },
+              { q: "What forms of payment do you accept?", a: "We accept all major credit cards, debit cards, cash, and checks. We also offer financing options through third-party providers for larger repairs." },
+              { q: "Do I need an appointment?", a: "Walk-ins are welcome for basic services, but appointments are recommended to ensure we can accommodate you at your preferred time. You can book online or call us at (562) 692-4245." },
+            ].map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="glass-panel border-white/5 px-6 rounded-xl hover-elevate transition-all">
+                <AccordionTrigger className="font-black uppercase tracking-wider text-left hover:no-underline py-6">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Online Booking Section */}
+      <section id="booking" className="py-32 container px-6 bg-secondary/10 border-y border-white/5">
+        <div className="mb-16 text-center">
+          <h2 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-tighter">Book Your<br/>Appointment</h2>
+          <div className="w-24 h-1.5 bg-primary mx-auto rounded-full mb-8" />
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Schedule your service online 24/7. Choose your preferred date and time, and we'll confirm your appointment.
+          </p>
+        </div>
+        <Card className="glass-panel border-white/5 p-8 rounded-2xl">
+          <div className="bg-secondary/50 rounded-xl p-8 min-h-[600px] flex items-center justify-center border border-white/5">
+            <div className="text-center">
+              <Calendar className="w-16 h-16 text-primary mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-black uppercase tracking-widest mb-2">Booking System</h3>
+              <p className="text-muted-foreground mb-6">Online booking will be available soon</p>
+              <p className="text-sm text-muted-foreground mb-4">For now, please call us at <a href="tel:5626924245" className="text-primary hover:underline font-bold">(562) 692-4245</a></p>
+              <Button className="mt-4" variant="outline">View Available Times</Button>
+            </div>
+            {/* Placeholder for Setmore iframe - uncomment and add your Setmore URL when ready */}
+            {/* <iframe src="https://example.setmore.com" width="100%" height="800px" className="border-0 rounded-lg" /> */}
+          </div>
+        </Card>
       </section>
 
       {/* Contact Section */}
@@ -308,21 +437,54 @@ export default function Home() {
                     <FormField control={form.control} name="name" render={({ field }) => (
                       <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Full Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Email Address</FormLabel><FormControl><Input placeholder="john@example.com" {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                      <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Phone Number</FormLabel><FormControl><Input type="tel" placeholder="(562) 692-4245" {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  </div>
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Email Address</FormLabel><FormControl><Input type="email" placeholder="john@example.com" {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <div className="grid md:grid-cols-2 gap-10">
+                    <FormField control={form.control} name="vehicleDetails" render={({ field }) => (
+                      <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Vehicle (Year/Make/Model)</FormLabel><FormControl><Input placeholder="2018 Toyota Camry" {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="serviceType" render={({ field }) => (
+                      <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Service Needed</FormLabel><FormControl><Input placeholder="Oil Change, Brake Service, etc." {...field} className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
                   <FormField control={form.control} name="message" render={({ field }) => (
-                    <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Technical Request</FormLabel><FormControl><Textarea rows={5} placeholder="Describe your vehicle issues in detail..." {...field} className="bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel className="uppercase tracking-[0.3em] text-[10px] font-black text-primary">Message / Additional Details</FormLabel><FormControl><Textarea rows={5} placeholder="Describe your vehicle issues in detail..." {...field} className="bg-white/5 border-white/10 rounded-xl focus:border-primary transition-all text-lg font-bold" /></FormControl><FormMessage /></FormItem>
                   )} />
                   <Button type="submit" className="w-full h-16 font-black tracking-[0.3em] uppercase text-xl hover-elevate shadow-2xl shadow-primary/20" disabled={mutation.isPending}>
-                    {mutation.isPending ? "Transmitting..." : "Initialize Request"}
+                    {mutation.isPending ? "Transmitting..." : "Request Quote"}
                   </Button>
                 </form>
               </Form>
             </Card>
           </div>
         </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="py-20 container px-6 border-b border-white/5">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tighter">Find Us</h2>
+          <div className="w-24 h-1.5 bg-primary mx-auto rounded-full" />
+        </div>
+        <Card className="glass-panel border-white/5 overflow-hidden rounded-2xl">
+          <div className="aspect-video w-full">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.1234567890123!2d-118.12345678901234!3d33.98765432109876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzPCsDU5JzE1LjYiTiAxMTjCsDA3JzI0LjQiVw!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full"
+            />
+          </div>
+        </Card>
       </section>
 
       {/* Footer */}
