@@ -305,7 +305,7 @@ export default function Home() {
       </section>
 
       {/* Gallery Section */}
-      <section className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
+      <section id="gallery" className="py-32 container px-6 bg-secondary/5 border-y border-white/5">
         <div className="mb-16 text-center">
           <div className="inline-flex items-center gap-3 mb-6">
             <Camera className="w-8 h-8 text-primary" />
