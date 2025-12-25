@@ -138,18 +138,17 @@ export default function Home() {
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `linear-gradient(rgba(7, 10, 15, 0.6), rgba(7, 10, 15, 0.95)), url(${garageBg})` }}
         />
-        <div className="container relative z-10 px-6 text-center">
+        <div className="container relative z-10 px-4 md:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-8 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6 md:mb-8 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary">Precision Automotive Engineering</span>
+              <span className="text-[9px] md:text-[10px] font-black tracking-[0.3em] md:tracking-[0.4em] uppercase text-primary">Precision Automotive Engineering</span>
             </div>
-            <h1 
-              className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] uppercase tracking-tighter cursor-pointer hover:opacity-90 transition-opacity"
+            <h1 className="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 leading-[0.85] uppercase tracking-tighter cursor-pointer hover:opacity-90 transition-opacity"
               onClick={(e) => {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -160,7 +159,7 @@ export default function Home() {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-red-500 to-primary text-glow animate-gradient-x">Expert Service.</span>
               </span>
             </h1>
-            <p className="max-w-2xl mx-auto text-muted-foreground text-xl mb-12 leading-relaxed">
+            <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-xl mb-8 md:mb-12 leading-relaxed px-4">
               Family-owned for <span className="text-white font-bold">27+ years</span>. Santa Fe Springs' most trusted father-son team specialized in high-performance restoration and maintenance.
             </p>
             <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4 md:px-0">
@@ -280,7 +279,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-40 container px-6 overflow-hidden relative">
+      <section id="about" className="py-20 md:py-40 container px-4 md:px-6 overflow-hidden relative">
         <div className="grid md:grid-cols-2 gap-24 items-center">
           <div className="relative order-2 md:order-1">
              <div className="relative z-10 aspect-[4/5] glass-panel rounded-3xl overflow-hidden group">
