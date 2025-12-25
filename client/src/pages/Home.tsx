@@ -152,11 +152,34 @@ export default function Home() {
               Family-owned for <span className="text-white font-bold">27+ years</span>. Santa Fe Springs' most trusted father-son team specialized in high-performance restoration and maintenance.
             </p>
             <div className="flex flex-col md:flex-row gap-6 justify-center">
-              <Button size="lg" className="h-16 px-12 text-lg font-black tracking-widest uppercase hover-elevate shadow-xl shadow-primary/25 group">
-                GET A FREE QUOTE
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button 
+                size="lg" 
+                className="h-16 px-6 md:px-12 text-lg font-black tracking-widest uppercase hover-elevate shadow-xl shadow-primary/25 group min-w-0 whitespace-nowrap"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const servicesSection = document.getElementById('services');
+                  if (servicesSection) {
+                    servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  GET A FREE QUOTE
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" />
+                </span>
               </Button>
-              <Button size="lg" variant="outline" className="h-16 px-12 text-lg font-black tracking-widest uppercase glass-panel hover:bg-white/5 transition-colors">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="h-16 px-6 md:px-12 text-lg font-black tracking-widest uppercase glass-panel hover:bg-white/5 transition-colors min-w-0 whitespace-nowrap"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const gallerySection = document.querySelector('[class*="Gallery"]');
+                  if (gallerySection) {
+                    (gallerySection as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
                 VIEW OUR WORK
               </Button>
             </div>
