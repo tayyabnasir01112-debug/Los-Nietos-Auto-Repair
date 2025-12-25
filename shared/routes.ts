@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { insertInquirySchema, inquiries, services, testimonials } from './schema';
+import { buildApiUrl } from './api-utils';
 
 export const errorSchemas = {
   validation: z.object({
@@ -14,11 +15,26 @@ export const errorSchemas = {
   }),
 };
 
+// Base API paths (these will be converted by buildApiUrl on the client)
+export const apiPaths = {
+  contact: '/api/contact',
+  services: '/api/services',
+  testimonials: '/api/testimonials',
+};
+
+// Helper to get the actual API URL (works on client-side)
+export function getApiUrl(basePath: string): string {
+  if (typeof window !== 'undefined') {
+    return buildApiUrl(basePath);
+  }
+  return basePath;
+}
+
 export const api = {
   contact: {
     submit: {
       method: 'POST' as const,
-      path: '/api/contact',
+      get path() { return getApiUrl(apiPaths.contact); },
       input: insertInquirySchema,
       responses: {
         200: z.object({ message: z.string() }),
@@ -30,7 +46,7 @@ export const api = {
   services: {
     list: {
       method: 'GET' as const,
-      path: '/api/services',
+      get path() { return getApiUrl(apiPaths.services); },
       responses: {
         200: z.array(z.custom<typeof services.$inferSelect>()),
       },
@@ -39,7 +55,7 @@ export const api = {
   testimonials: {
     list: {
       method: 'GET' as const,
-      path: '/api/testimonials',
+      get path() { return getApiUrl(apiPaths.testimonials); },
       responses: {
         200: z.array(z.custom<typeof testimonials.$inferSelect>()),
       },
